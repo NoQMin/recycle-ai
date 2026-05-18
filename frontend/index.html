@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 쓰레기 분리배출 도우미</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 32px 18px;
+        font-family: Arial, "Noto Sans KR", sans-serif;
+        color: #263238;
+        background:
+          radial-gradient(circle at top left, rgba(76, 175, 80, 0.18), transparent 28rem),
+          linear-gradient(135deg, #f4fbf6 0%, #eef7f0 48%, #fff8e6 100%);
+      }
+
+      .app {
+        width: min(920px, 100%);
+        margin: 0 auto;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(46, 125, 50, 0.14);
+        border-radius: 18px;
+        box-shadow: 0 18px 45px rgba(27, 94, 32, 0.12);
+        padding: 30px;
+      }
+
+      h1 {
+        margin: 0;
+        color: #1b5e20;
+        font-size: clamp(28px, 4vw, 42px);
+        line-height: 1.15;
+      }
+
+      .intro {
+        margin: 12px 0 0;
+        color: #546e5a;
+        line-height: 1.7;
+      }
+
+      .trash-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 12px;
+        margin: 28px 0;
+      }
+
+      .trash-item {
+        min-height: 118px;
+        padding: 16px 12px;
+        border: 2px solid #b7dfba;
+        border-radius: 14px;
+        background: #f6fff7;
+        color: #1b5e20;
+        cursor: grab;
+        font: inherit;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition:
+          transform 0.16s ease,
+          border-color 0.16s ease,
+          background 0.16s ease;
+      }
+
+      .trash-item:hover,
+      .trash-item:focus-visible {
+        transform: translateY(-2px);
+        border-color: #43a047;
+        background: #e8f5e9;
+        outline: none;
+      }
+
+      .trash-item:active {
+        cursor: grabbing;
+      }
+
+      .emoji {
+        font-size: 34px;
+      }
+
+      .drop-zone {
+        min-height: 122px;
+        margin: 0 auto;
+        padding: 28px;
+        border: 3px dashed #81c784;
+        border-radius: 18px;
+        background: #fbfffb;
+        color: #2e7d32;
+        font-size: 18px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition:
+          background 0.16s ease,
+          border-color 0.16s ease;
+      }
+
+      .drop-zone.active {
+        border-color: #2e7d32;
+        background: #dff3e1;
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .decay-card,
+      .result {
+        display: none;
+        min-height: 220px;
+        padding: 22px;
+        border-radius: 16px;
+      }
+
+      .decay-card {
+        background: #fff8e1;
+        border: 1px solid #ffe0a3;
+        text-align: center;
+      }
+
+      .trash-emoji {
+        font-size: 76px;
+        line-height: 1;
+      }
+
+      .time-box {
+        margin-top: 16px;
+        color: #5d4037;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .description {
+        margin-top: 10px;
+        color: #795548;
+        line-height: 1.6;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 16px;
+        margin-top: 18px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #d7ccc8;
+      }
+
+      .progress {
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #7cb342, #8d6e63);
+      }
+
+      .result {
+        background: #eef8f0;
+        border: 1px solid #c8e6c9;
+        white-space: pre-line;
+        line-height: 1.7;
+      }
+
+      .result.loading {
+        color: #2e7d32;
+        font-weight: 700;
+      }
+
+      @keyframes progressMove {
+        from {
+          width: 0%;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      @keyframes decay {
+        0% {
+          transform: scale(1) rotate(0deg);
+          opacity: 1;
+        }
+        45% {
+          transform: scale(0.86) rotate(4deg);
+          opacity: 0.72;
+        }
+        100% {
+          transform: scale(0.6) rotate(-8deg);
+          opacity: 0.32;
+        }
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 18px 12px;
+        }
+
+        .panel {
+          padding: 22px 16px;
+        }
+
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="app">
+      <section class="panel" aria-labelledby="pageTitle">
+        <h1 id="pageTitle">AI 쓰레기 분리배출 도우미</h1>
+        <p class="intro">
+          쓰레기를 아래 박스로 드래그하거나 항목을 클릭하면, 분해 시간과 분리배출 방법을 AI가 정리해줍니다.
+        </p>
+
+        <div class="trash-list" aria-label="쓰레기 목록"></div>
+
+        <div class="drop-zone" id="dropZone">여기에 쓰레기를 드래그하세요</div>
+
+        <div class="content-grid">
+          <section class="decay-card" id="decayCard" aria-live="polite">
+            <div class="trash-emoji" id="trashEmoji">♻️</div>
+            <div class="time-box" id="decayTime">분해 시간 분석 대기 중</div>
+            <div class="description" id="decayDescription">항목을 선택하면 자연 분해 과정을 시각화합니다.</div>
+            <div class="progress-bar" aria-hidden="true">
+              <div class="progress" id="progress"></div>
+            </div>
+          </section>
+
+          <section class="result" id="result" aria-live="polite"></section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const API_URL = "http://localhost:3000/api/recycle";
+
+      const trashItems = [
+        {
+          name: "페트병",
+          emoji: "🍾",
+          time: "약 450년",
+          duration: 18,
+          description: "플라스틱은 자연에서 매우 천천히 쪼개지며 미세플라스틱으로 남을 수 있습니다.",
+        },
+        {
+          name: "종이컵",
+          emoji: "🥤",
+          time: "약 20년",
+          duration: 8,
+          description: "코팅된 종이컵은 일반 종이보다 분해와 재활용이 어렵습니다.",
+        },
+        {
+          name: "비닐봉지",
+          emoji: "🛍️",
+          time: "약 10~20년",
+          duration: 12,
+          description: "비닐은 가볍게 날아가 환경에 오래 남기 쉬우므로 깨끗하게 모아 배출해야 합니다.",
+        },
+        {
+          name: "유리병",
+          emoji: "🍶",
+          time: "약 100만 년 이상",
+          duration: 24,
+          description: "유리는 자연 분해가 거의 되지 않지만, 잘 분리하면 반복 재활용할 수 있습니다.",
+        },
+        {
+          name: "음식물 쓰레기",
+          emoji: "🍎",
+          time: "약 2개월~1년",
+          duration: 6,
+          description: "수분을 줄이고 이물질을 빼면 퇴비나 사료 자원으로 활용하기 좋습니다.",
+        },
+      ];
+
+      const trashList = document.querySelector(".trash-list");
+      const dropZone = document.getElementById("dropZone");
+      const resultBox = document.getElementById("result");
+      const decayCard = document.getElementById("decayCard");
+      const trashEmoji = document.getElementById("trashEmoji");
+      const decayTime = document.getElementById("decayTime");
+      const decayDescription = document.getElementById("decayDescription");
+      const progress = document.getElementById("progress");
+
+      let selectedItem = null;
+
+      trashItems.forEach((item) => {
+        const button = document.createElement("button");
+        button.className = "trash-item";
+        button.type = "button";
+        button.draggable = true;
+        button.innerHTML = `<span class="emoji">${item.emoji}</span><span>${item.name}</span>`;
+
+        button.addEventListener("dragstart", () => {
+          selectedItem = item;
+        });
+
+        button.addEventListener("click", () => {
+          analyzeItem(item);
+        });
+
+        trashList.appendChild(button);
+      });
+
+      dropZone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropZone.classList.add("active");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("active");
+      });
+
+      dropZone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropZone.classList.remove("active");
+
+        if (selectedItem) {
+          analyzeItem(selectedItem);
+        }
+      });
+
+      function analyzeItem(item) {
+        dropZone.textContent = `${item.name} 분석 중`;
+        showDecayAnimation(item);
+        askAI(item.name);
+      }
+
+      function showDecayAnimation(item) {
+        decayCard.style.display = "block";
+        trashEmoji.textContent = item.emoji;
+        decayTime.textContent = `분해까지 걸리는 시간: ${item.time}`;
+        decayDescription.textContent = item.description;
+
+        progress.style.animation = "none";
+        trashEmoji.style.animation = "none";
+
+        progress.offsetHeight;
+        trashEmoji.offsetHeight;
+
+        progress.style.animation = `progressMove ${item.duration}s forwards`;
+        trashEmoji.style.animation = `decay ${item.duration}s infinite alternate`;
+      }
+
+      async function askAI(itemName) {
+        resultBox.style.display = "block";
+        resultBox.classList.add("loading");
+        resultBox.textContent = "AI 분석 중...";
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ item: itemName }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || "서버 요청에 실패했습니다.");
+          }
+
+          resultBox.textContent = data.result;
+        } catch (error) {
+          resultBox.textContent = error.message || "서버 연결에 실패했습니다. 백엔드가 실행 중인지 확인해주세요.";
+        } finally {
+          resultBox.classList.remove("loading");
+        }
+      }
+    </script>
+  </body>
+</html>
