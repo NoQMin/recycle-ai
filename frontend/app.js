@@ -38,16 +38,13 @@ function App() {
     setResult("");
 
     try {
-      const response = await fetch(
-  "https://recycle-ai-vb35.onrender.com/api/recycle",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ item: keyword }),
-  }
-);
+      const response = await fetch("/api/recycle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ item: keyword }),
+      });
 
       const data = await response.json();
 
