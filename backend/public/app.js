@@ -7,14 +7,14 @@ function App() {
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const examples = ["PET bottle", "paper cup", "delivery container", "glass bottle", "battery"];
+  const examples = ["페트병", "종이컵", "배달 용기", "유리병", "건전지"];
   const menuItems = [
-    { label: "Impact", href: "#impact" },
-    { label: "AI Guide", href: "#checker" },
-    { label: "Reuse Tips", href: "#tips" },
-    { label: "Checklist", href: "#action" },
+    { label: "문제점", href: "#impact" },
+    { label: "AI 가이드", href: "#checker" },
+    { label: "재사용 팁", href: "#tips" },
+    { label: "체크리스트", href: "#action" },
   ];
-  const isLoading = status === "Analyzing";
+  const isLoading = status === "분석 중";
   const maxItemLength = 60;
 
   async function handleSubmit(event) {
@@ -22,18 +22,18 @@ function App() {
 
     const keyword = item.trim();
     if (!keyword) {
-      setError("Enter an item name to analyze.");
+      setError("분석할 물건 이름을 입력해 주세요.");
       setResult("");
       return;
     }
 
     if (keyword.length > maxItemLength) {
-      setError(`Enter ${maxItemLength} characters or fewer.`);
+      setError(`${maxItemLength}자 이하로 입력해 주세요.`);
       setResult("");
       return;
     }
 
-    setStatus("Analyzing");
+    setStatus("분석 중");
     setError("");
     setResult("");
 
@@ -49,12 +49,12 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Analysis failed.");
+        throw new Error(data.error || "분석에 실패했습니다.");
       }
 
       setResult(data.result);
     } catch (err) {
-      setError(err.message || "Could not connect to the server.");
+      setError(err.message || "서버에 연결할 수 없습니다.");
     } finally {
       setStatus("");
     }
@@ -74,26 +74,26 @@ function App() {
       <header className="site-header">
         <div className="utility-bar">
           <div className="header-shell utility-inner">
-            <span>Smart waste sorting and reuse guide</span>
+            <span>스마트 분리배출 및 재사용 가이드</span>
             <div className="utility-links">
-              <a href="#checker">Quick analysis</a>
-              <a href="#tips">Sorting tips</a>
-              <a href="#action">Daily checklist</a>
+              <a href="#checker">빠른 분석</a>
+              <a href="#tips">분리배출 팁</a>
+              <a href="#action">생활 체크리스트</a>
             </div>
           </div>
         </div>
 
         <div className="main-nav">
           <div className="header-shell main-nav-inner">
-            <a className="logo" href="#" aria-label="Recycle AI home">
+            <a className="logo" href="#" aria-label="Recycle AI 홈">
               <span className="logo-mark">R</span>
               <span>
                 <strong>Recycle AI</strong>
-                <small>Waste Guide Platform</small>
+                <small>분리배출 가이드 플랫폼</small>
               </span>
             </a>
 
-            <nav className="desktop-menu" aria-label="Main menu">
+            <nav className="desktop-menu" aria-label="주요 메뉴">
               {menuItems.map((menu) => (
                 <a key={menu.href} href={menu.href}>
                   {menu.label}
@@ -103,13 +103,13 @@ function App() {
 
             <div className="nav-actions">
               <a className="nav-cta" href="#checker">
-                Analyze
+                분석하기
               </a>
               <button
                 className="menu-button"
                 type="button"
                 onClick={() => setMenuOpen((open) => !open)}
-                aria-label="Open menu"
+                aria-label="메뉴 열기"
                 aria-expanded={menuOpen}
               >
                 <span></span>
@@ -134,40 +134,40 @@ function App() {
       <section className="hero">
         <div className="hero-inner">
           <div className="hero-content">
-            <p className="eyebrow">Illegal dumping prevention, recycling, reuse</p>
-            <h1>Check how to sort waste before throwing it away</h1>
+            <p className="eyebrow">무단투기 예방, 재활용, 재사용</p>
+            <h1>버리기 전에 올바른 분리배출 방법을 확인하세요</h1>
             <p className="hero-copy">
-              Enter an item name and Recycle AI will explain decomposition time, sorting,
-              recycling, reuse ideas, and important cautions.
+              물건 이름을 입력하면 Recycle AI가 분해 시간, 분리배출 방법,
+              재활용 가능성, 재사용 아이디어, 주의사항을 알려드립니다.
             </p>
             <div className="hero-actions">
-              <a className="button" href="#checker">Use AI guide</a>
-              <a className="button secondary" href="#impact">Why it matters</a>
+              <a className="button" href="#checker">AI 가이드 사용하기</a>
+              <a className="button secondary" href="#impact">왜 중요한가요?</a>
             </div>
           </div>
 
-          <aside className="hero-board" aria-label="Quick guide">
-            <strong>Before disposal</strong>
+          <aside className="hero-board" aria-label="빠른 가이드">
+            <strong>버리기 전 확인</strong>
             <ul>
-              <li>Empty and rinse containers when possible.</li>
-              <li>Separate caps, labels, and mixed materials.</li>
-              <li>Check whether the item can be reused first.</li>
+              <li>가능하면 용기를 비우고 헹궈 주세요.</li>
+              <li>뚜껑, 라벨, 다른 재질을 분리해 주세요.</li>
+              <li>먼저 재사용할 수 있는지 확인해 주세요.</li>
             </ul>
           </aside>
         </div>
 
         <div className="hero-strip">
           <div>
-            <strong>Environment</strong>
-            <span>Reduce soil and water pollution.</span>
+            <strong>환경</strong>
+            <span>토양과 수질 오염을 줄입니다.</span>
           </div>
           <div>
-            <strong>Home</strong>
-            <span>Reduce odor and contamination.</span>
+            <strong>생활</strong>
+            <span>악취와 오염을 줄입니다.</span>
           </div>
           <div>
-            <strong>Cost</strong>
-            <span>Lower cleanup and processing waste.</span>
+            <strong>비용</strong>
+            <span>수거와 처리 비용을 낮춥니다.</span>
           </div>
         </div>
       </section>
@@ -175,28 +175,28 @@ function App() {
       <section className="section" id="impact">
         <div className="section-inner">
           <div className="section-heading">
-            <h2>Incorrect disposal creates bigger problems</h2>
+            <h2>잘못 버린 쓰레기는 더 큰 문제를 만듭니다</h2>
             <p>
-              Waste left in streets, parks, and waterways can pollute the environment,
-              increase cleanup cost, and make recycling harder.
+              길거리, 공원, 하천에 버려진 쓰레기는 환경을 오염시키고
+              수거 비용을 높이며 재활용을 더 어렵게 만듭니다.
             </p>
           </div>
 
           <div className="impact-grid">
             <article className="impact-card">
               <strong>01</strong>
-              <h3>Pollution</h3>
-              <p>Plastic and mixed waste can break into smaller pieces and spread through soil and water.</p>
+              <h3>환경 오염</h3>
+              <p>플라스틱과 혼합 폐기물은 잘게 부서져 토양과 물로 퍼질 수 있습니다.</p>
             </article>
             <article className="impact-card">
               <strong>02</strong>
-              <h3>Daily life</h3>
-              <p>Food residue and unsorted trash cause odor, pests, and sanitation problems.</p>
+              <h3>생활 불편</h3>
+              <p>음식물 찌꺼기와 섞인 쓰레기는 악취, 해충, 위생 문제를 일으킵니다.</p>
             </article>
             <article className="impact-card">
               <strong>03</strong>
-              <h3>Public cost</h3>
-              <p>Cleanup, sorting, incineration, and landfill management all add extra cost.</p>
+              <h3>사회적 비용</h3>
+              <p>청소, 선별, 소각, 매립 관리에 추가 비용이 발생합니다.</p>
             </article>
           </div>
         </div>
@@ -206,8 +206,8 @@ function App() {
         <div className="section-inner checker-layout">
           <div className="guide-panel">
             <div className="section-heading">
-              <h2>AI recycling guide</h2>
-              <p>Type an item name to get practical sorting, recycling, and reuse guidance.</p>
+              <h2>AI 재활용 가이드</h2>
+              <p>물건 이름을 입력하면 실용적인 분리배출, 재활용, 재사용 방법을 확인할 수 있습니다.</p>
             </div>
 
             <form className="search-form" onSubmit={handleSubmit}>
@@ -215,16 +215,16 @@ function App() {
                 type="text"
                 value={item}
                 onChange={(event) => setItem(event.target.value)}
-                placeholder="e.g. PET bottle, paper cup, delivery container"
-                aria-label="Waste item name"
+                placeholder="예: 페트병, 종이컵, 배달 용기"
+                aria-label="폐기물 이름"
                 maxLength={maxItemLength}
               />
               <button className="button" type="submit" disabled={isLoading}>
-                {isLoading ? "Analyzing" : "Analyze"}
+                {isLoading ? "분석 중" : "분석하기"}
               </button>
             </form>
 
-            <div className="example-list" aria-label="Example waste items">
+            <div className="example-list" aria-label="폐기물 예시">
               {examples.map((example) => (
                 <button
                   className="chip"
@@ -240,16 +240,16 @@ function App() {
 
           <div className="result-panel" aria-live="polite">
             <div className="result-title">
-              <h3>Analysis result</h3>
+              <h3>분석 결과</h3>
               {status && <span className="status">{status}</span>}
             </div>
             <p className="notice">
-              Local recycling rules can differ. Check your city or district instructions for final disposal.
+              지역별 분리배출 기준은 다를 수 있습니다. 최종 배출 전 거주 지역 안내를 확인해 주세요.
             </p>
             {error && <p className="error">{error}</p>}
             {!error && result && <p>{result}</p>}
             {!error && !result && !status && (
-              <p className="empty">Results will appear here after you submit an item.</p>
+              <p className="empty">물건 이름을 입력하면 결과가 여기에 표시됩니다.</p>
             )}
           </div>
         </div>
@@ -258,30 +258,30 @@ function App() {
       <section className="section" id="tips">
         <div className="section-inner">
           <div className="section-heading">
-            <h2>Reuse before disposal</h2>
-            <p>Small choices can reduce waste before recycling starts.</p>
+            <h2>버리기 전에 재사용을 먼저 생각하세요</h2>
+            <p>작은 선택이 재활용 전에 발생하는 쓰레기를 줄일 수 있습니다.</p>
           </div>
 
           <div className="tips-grid">
             <article className="tip-card">
               <div className="tip-icon">1</div>
-              <h3>Empty and dry</h3>
-              <p>Remove residue so recyclable materials do not contaminate other items.</p>
+              <h3>비우고 말리기</h3>
+              <p>재활용품이 다른 물건을 오염시키지 않도록 내용물을 제거해 주세요.</p>
             </article>
             <article className="tip-card">
               <div className="tip-icon">2</div>
-              <h3>Separate parts</h3>
-              <p>Detach labels, caps, and mixed materials where possible.</p>
+              <h3>부분 분리하기</h3>
+              <p>가능한 경우 라벨, 뚜껑, 다른 재질을 따로 분리해 주세요.</p>
             </article>
             <article className="tip-card">
               <div className="tip-icon">3</div>
-              <h3>Reuse containers</h3>
-              <p>Clean glass jars and sturdy plastic containers can often be reused.</p>
+              <h3>용기 재사용하기</h3>
+              <p>깨끗한 유리병과 튼튼한 플라스틱 용기는 다시 사용할 수 있습니다.</p>
             </article>
             <article className="tip-card">
               <div className="tip-icon">4</div>
-              <h3>Share usable items</h3>
-              <p>Donate or resell items that are still in good condition.</p>
+              <h3>쓸 수 있는 물건 나누기</h3>
+              <p>상태가 좋은 물건은 기부하거나 중고로 나눌 수 있습니다.</p>
             </article>
           </div>
         </div>
@@ -291,27 +291,27 @@ function App() {
         <div className="section-inner action-layout">
           <div>
             <div className="section-heading">
-              <h2>30 second checklist</h2>
-              <p>Run through these checks before throwing items away.</p>
+              <h2>30초 체크리스트</h2>
+              <p>물건을 버리기 전에 아래 항목을 확인해 주세요.</p>
             </div>
           </div>
 
           <div className="checklist">
             <label>
               <input type="checkbox" />
-              <span>Did I empty and rinse the item?</span>
+              <span>내용물을 비우고 헹궜나요?</span>
             </label>
             <label>
               <input type="checkbox" />
-              <span>Did I separate paper, plastic, glass, and metal?</span>
+              <span>종이, 플라스틱, 유리, 금속을 분리했나요?</span>
             </label>
             <label>
               <input type="checkbox" />
-              <span>Did I remove tape, labels, or food residue?</span>
+              <span>테이프, 라벨, 음식물 찌꺼기를 제거했나요?</span>
             </label>
             <label>
               <input type="checkbox" />
-              <span>Can this be reused, donated, or repaired?</span>
+              <span>재사용, 기부, 수리가 가능한가요?</span>
             </label>
           </div>
         </div>
@@ -320,7 +320,7 @@ function App() {
       <footer className="footer">
         <div className="footer-inner">
           <strong>Recycle AI</strong>
-          <p>Sort better. Reuse more. Waste less.</p>
+          <p>더 잘 분리하고, 더 많이 재사용하고, 쓰레기를 줄이세요.</p>
         </div>
       </footer>
     </main>
