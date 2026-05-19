@@ -13,7 +13,7 @@
       "destination": "/frontend/styles.css"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/frontend/index.html"
     }
   ]

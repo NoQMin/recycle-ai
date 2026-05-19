@@ -134,7 +134,7 @@ function App() {
       <section className="hero">
         <div className="hero-inner">
           <div className="hero-content">
-            <p className="eyebrow">무단투기 예방, 재활용, 재사용</p>
+            <p className="eyebrow">무단투기 예방, 재활용과 재사용</p>
             <h1>버리기 전에 올바른 분리배출 방법을 확인하세요</h1>
             <p className="hero-copy">
               물건 이름을 입력하면 Recycle AI가 분해 시간, 분리배출 방법,
@@ -142,7 +142,7 @@ function App() {
             </p>
             <div className="hero-actions">
               <a className="button" href="#checker">AI 가이드 사용하기</a>
-              <a className="button secondary" href="#impact">왜 중요한가요?</a>
+              <a className="button secondary" href="#impact">왜 중요할까?</a>
             </div>
           </div>
 
@@ -150,7 +150,7 @@ function App() {
             <strong>버리기 전 확인</strong>
             <ul>
               <li>가능하면 용기를 비우고 헹궈 주세요.</li>
-              <li>뚜껑, 라벨, 다른 재질을 분리해 주세요.</li>
+              <li>라벨, 뚜껑, 다른 재질은 따로 분리해 주세요.</li>
               <li>먼저 재사용할 수 있는지 확인해 주세요.</li>
             </ul>
           </aside>
@@ -159,11 +159,11 @@ function App() {
         <div className="hero-strip">
           <div>
             <strong>환경</strong>
-            <span>토양과 수질 오염을 줄입니다.</span>
+            <span>토양과 하천 오염을 줄입니다.</span>
           </div>
           <div>
             <strong>생활</strong>
-            <span>악취와 오염을 줄입니다.</span>
+            <span>악취와 불편을 줄입니다.</span>
           </div>
           <div>
             <strong>비용</strong>
@@ -175,10 +175,10 @@ function App() {
       <section className="section" id="impact">
         <div className="section-inner">
           <div className="section-heading">
-            <h2>잘못 버린 쓰레기는 더 큰 문제를 만듭니다</h2>
+            <h2>잘못 버린 쓰레기는 여러 문제를 만듭니다</h2>
             <p>
-              길거리, 공원, 하천에 버려진 쓰레기는 환경을 오염시키고
-              수거 비용을 높이며 재활용을 더 어렵게 만듭니다.
+              길거리, 공원, 하천에 버려진 쓰레기는 환경을 오염시키고 수거
+              비용을 높이며 재활용률을 떨어뜨립니다.
             </p>
           </div>
 
@@ -186,12 +186,12 @@ function App() {
             <article className="impact-card">
               <strong>01</strong>
               <h3>환경 오염</h3>
-              <p>플라스틱과 혼합 폐기물은 잘게 부서져 토양과 물로 퍼질 수 있습니다.</p>
+              <p>플라스틱과 금속 조각은 쉽게 분해되지 않아 토양과 물로 퍼질 수 있습니다.</p>
             </article>
             <article className="impact-card">
               <strong>02</strong>
               <h3>생활 불편</h3>
-              <p>음식물 찌꺼기와 섞인 쓰레기는 악취, 해충, 위생 문제를 일으킵니다.</p>
+              <p>음식물 찌꺼기가 섞인 쓰레기는 악취, 해충, 위생 문제를 일으킵니다.</p>
             </article>
             <article className="impact-card">
               <strong>03</strong>
@@ -216,7 +216,7 @@ function App() {
                 value={item}
                 onChange={(event) => setItem(event.target.value)}
                 placeholder="예: 페트병, 종이컵, 배달 용기"
-                aria-label="폐기물 이름"
+                aria-label="물건 이름"
                 maxLength={maxItemLength}
               />
               <button className="button" type="submit" disabled={isLoading}>
@@ -224,7 +224,7 @@ function App() {
               </button>
             </form>
 
-            <div className="example-list" aria-label="폐기물 예시">
+            <div className="example-list" aria-label="물건 예시">
               {examples.map((example) => (
                 <button
                   className="chip"
@@ -271,7 +271,7 @@ function App() {
             <article className="tip-card">
               <div className="tip-icon">2</div>
               <h3>부분 분리하기</h3>
-              <p>가능한 경우 라벨, 뚜껑, 다른 재질을 따로 분리해 주세요.</p>
+              <p>가능한 경우 뚜껑, 라벨, 다른 재질을 따로 분리해 주세요.</p>
             </article>
             <article className="tip-card">
               <div className="tip-icon">3</div>
@@ -307,7 +307,7 @@ function App() {
             </label>
             <label>
               <input type="checkbox" />
-              <span>테이프, 라벨, 음식물 찌꺼기를 제거했나요?</span>
+              <span>라벨, 뚜껑, 음식물 찌꺼기를 제거했나요?</span>
             </label>
             <label>
               <input type="checkbox" />
@@ -320,7 +320,7 @@ function App() {
       <footer className="footer">
         <div className="footer-inner">
           <strong>Recycle AI</strong>
-          <p>더 잘 분리하고, 더 많이 재사용하고, 쓰레기를 줄이세요.</p>
+          <p>바르게 분리하고, 더 많이 재사용하고, 쓰레기를 줄여요.</p>
         </div>
       </footer>
     </main>
