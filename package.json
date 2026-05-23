@@ -1,8 +1,8 @@
 {
-  "name": "recycle-ai-vercel",
+  "name": "recycle-ai",
   "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "@google/generative-ai": "^0.24.1"
+  "scripts": {
+    "dev": "node static-server.js"
   }
 }

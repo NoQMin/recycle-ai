@@ -1,327 +1,240 @@
-const { useState } = React;
+const { useMemo, useState } = React;
+
+const examples = ["깨진 유리컵", "기름 묻은 배달 용기", "보조배터리", "낡은 운동화", "젖은 택배 상자", "스프레이 캔"];
+
+const impactItems = [
+  {
+    title: "토양 오염",
+    text: "무단투기된 플라스틱, 배터리, 화학물질은 비와 함께 땅속으로 스며들어 식물과 생물에게 영향을 줍니다.",
+  },
+  {
+    title: "하천 오염",
+    text: "길가 쓰레기는 빗물받이를 통해 하천으로 이동하고, 결국 바다 생태계까지 오염시킬 수 있습니다.",
+  },
+  {
+    title: "야생 생물 피해",
+    text: "비닐, 낚싯줄, 캔 조각은 동물이 먹이로 착각하거나 몸에 걸려 다치는 원인이 됩니다.",
+  },
+  {
+    title: "도시 비용 증가",
+    text: "무단투기 단속, 수거, 선별, 소각 비용은 결국 지역 사회가 함께 부담합니다.",
+  },
+];
+
+const checklistItems = [
+  "내용물을 완전히 비웠나요?",
+  "물로 헹구고 말렸나요?",
+  "라벨, 뚜껑, 다른 재질을 분리했나요?",
+  "재사용하거나 나눌 수 있는지 확인했나요?",
+];
 
 function App() {
   const [item, setItem] = useState("");
-  const [result, setResult] = useState("");
-  const [status, setStatus] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [checked, setChecked] = useState([]);
 
-  const examples = ["페트병", "종이컵", "배달 용기", "유리병", "건전지"];
-  const menuItems = [
-    { label: "문제점", href: "#impact" },
-    { label: "AI 가이드", href: "#checker" },
-    { label: "재사용 팁", href: "#tips" },
-    { label: "체크리스트", href: "#action" },
-  ];
-  const isLoading = status === "분석 중";
-  const maxItemLength = 60;
+  const progress = useMemo(() => Math.round((checked.length / checklistItems.length) * 100), [checked]);
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     const keyword = item.trim();
+
     if (!keyword) {
-      setError("분석할 물건 이름을 입력해 주세요.");
-      setResult("");
+      setError("어떤 쓰레기를 버릴지 먼저 입력해 주세요.");
+      setResult(null);
       return;
     }
 
-    if (keyword.length > maxItemLength) {
-      setError(`${maxItemLength}자 이하로 입력해 주세요.`);
-      setResult("");
-      return;
-    }
-
-    setStatus("분석 중");
+    setLoading(true);
     setError("");
-    setResult("");
+    setResult(null);
 
     try {
       const response = await fetch("/api/recycle", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ item: keyword }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "분석에 실패했습니다.");
+        throw new Error(data.error || "AI 분석에 실패했습니다.");
       }
 
-      setResult(data.result);
+      setResult(data);
     } catch (err) {
-      setError(err.message || "서버에 연결할 수 없습니다.");
+      setError(err.message || "API 서버와 연결할 수 없습니다.");
     } finally {
-      setStatus("");
+      setLoading(false);
     }
   }
 
-  function useExample(example) {
-    setItem(example);
-    setError("");
-  }
-
-  function closeMenu() {
-    setMenuOpen(false);
+  function toggleCheck(label) {
+    setChecked((current) =>
+      current.includes(label) ? current.filter((value) => value !== label) : [...current, label]
+    );
   }
 
   return (
-    <main className="app">
-      <header className="site-header">
-        <div className="utility-bar">
-          <div className="header-shell utility-inner">
-            <span>스마트 분리배출 및 재사용 가이드</span>
-            <div className="utility-links">
-              <a href="#checker">빠른 분석</a>
-              <a href="#tips">분리배출 팁</a>
-              <a href="#action">생활 체크리스트</a>
-            </div>
-          </div>
-        </div>
-
-        <div className="main-nav">
-          <div className="header-shell main-nav-inner">
-            <a className="logo" href="#" aria-label="Recycle AI 홈">
-              <span className="logo-mark">R</span>
-              <span>
-                <strong>Recycle AI</strong>
-                <small>분리배출 가이드 플랫폼</small>
-              </span>
-            </a>
-
-            <nav className="desktop-menu" aria-label="주요 메뉴">
-              {menuItems.map((menu) => (
-                <a key={menu.href} href={menu.href}>
-                  {menu.label}
-                </a>
-              ))}
-            </nav>
-
-            <div className="nav-actions">
-              <a className="nav-cta" href="#checker">
-                분석하기
-              </a>
-              <button
-                className="menu-button"
-                type="button"
-                onClick={() => setMenuOpen((open) => !open)}
-                aria-label="메뉴 열기"
-                aria-expanded={menuOpen}
-              >
-                <span></span>
-                <span></span>
-                <span></span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {menuOpen && (
-          <div className="mobile-panel">
-            {menuItems.map((menu) => (
-              <a key={menu.href} href={menu.href} onClick={closeMenu}>
-                {menu.label}
-              </a>
-            ))}
-          </div>
-        )}
+    <main>
+      <header className="topbar">
+        <a className="brand" href="#home" aria-label="Recycle AI 홈">
+          <span className="brand-mark">R</span>
+          <span>Recycle AI</span>
+        </a>
+        <nav aria-label="주요 메뉴">
+          <a href="#impact">환경 영향</a>
+          <a href="#guide">AI 배출 가이드</a>
+          <a href="#checklist">체크리스트</a>
+        </nav>
       </header>
 
-      <section className="hero">
-        <div className="hero-inner">
-          <div className="hero-content">
-            <p className="eyebrow">무단투기 예방, 재활용과 재사용</p>
-            <h1>버리기 전에 올바른 분리배출 방법을 확인하세요</h1>
-            <p className="hero-copy">
-              물건 이름을 입력하면 Recycle AI가 분해 시간, 분리배출 방법,
-              재활용 가능성, 재사용 아이디어, 주의사항을 알려드립니다.
-            </p>
-            <div className="hero-actions">
-              <a className="button" href="#checker">AI 가이드 사용하기</a>
-              <a className="button secondary" href="#impact">왜 중요할까?</a>
-            </div>
+      <section className="hero" id="home">
+        <div className="hero-copy">
+          <p className="eyebrow">Nature First Recycling Guide</p>
+          <h1>쓰레기 하나가 숲과 강의 내일을 바꿉니다.</h1>
+          <p>
+            무단투기는 단순히 지저분한 문제가 아니라 토양, 하천, 생태계에 오래 남는 문제입니다.
+            버릴 물건을 입력하면 AI가 한국 생활 기준에 맞춰 배출 방법을 정리해 줍니다.
+          </p>
+          <div className="hero-actions">
+            <a className="button primary" href="#guide">AI에게 물어보기</a>
+            <a className="button secondary" href="#impact">심각성 보기</a>
           </div>
-
-          <aside className="hero-board" aria-label="빠른 가이드">
-            <strong>버리기 전 확인</strong>
-            <ul>
-              <li>가능하면 용기를 비우고 헹궈 주세요.</li>
-              <li>라벨, 뚜껑, 다른 재질은 따로 분리해 주세요.</li>
-              <li>먼저 재사용할 수 있는지 확인해 주세요.</li>
-            </ul>
-          </aside>
         </div>
+        <aside className="forest-card" aria-label="환경 보호 메시지">
+          <span className="leaf-icon">잎</span>
+          <strong>버리기 전 30초</strong>
+          <p>비우기, 헹구기, 분리하기만 지켜도 재활용 품질과 자연 회복력이 달라집니다.</p>
+        </aside>
+      </section>
 
-        <div className="hero-strip">
-          <div>
-            <strong>환경</strong>
-            <span>토양과 하천 오염을 줄입니다.</span>
-          </div>
-          <div>
-            <strong>생활</strong>
-            <span>악취와 불편을 줄입니다.</span>
-          </div>
-          <div>
-            <strong>비용</strong>
-            <span>수거와 처리 비용을 낮춥니다.</span>
-          </div>
+      <section className="section impact-section" id="impact">
+        <div className="section-title">
+          <p className="eyebrow">무단투기의 심각성</p>
+          <h2>잘못 버린 쓰레기는 자연으로 돌아가지 않고 오래 남습니다.</h2>
+        </div>
+        <div className="impact-grid">
+          {impactItems.map((item, index) => (
+            <article className="impact-card" key={item.title}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="section" id="impact">
-        <div className="section-inner">
-          <div className="section-heading">
-            <h2>잘못 버린 쓰레기는 여러 문제를 만듭니다</h2>
-            <p>
-              길거리, 공원, 하천에 버려진 쓰레기는 환경을 오염시키고 수거
-              비용을 높이며 재활용률을 떨어뜨립니다.
-            </p>
-          </div>
-
-          <div className="impact-grid">
-            <article className="impact-card">
-              <strong>01</strong>
-              <h3>환경 오염</h3>
-              <p>플라스틱과 금속 조각은 쉽게 분해되지 않아 토양과 물로 퍼질 수 있습니다.</p>
-            </article>
-            <article className="impact-card">
-              <strong>02</strong>
-              <h3>생활 불편</h3>
-              <p>음식물 찌꺼기가 섞인 쓰레기는 악취, 해충, 위생 문제를 일으킵니다.</p>
-            </article>
-            <article className="impact-card">
-              <strong>03</strong>
-              <h3>사회적 비용</h3>
-              <p>청소, 선별, 소각, 매립 관리에 추가 비용이 발생합니다.</p>
-            </article>
+      <section className="guide-section" id="guide">
+        <div className="guide-intro">
+          <p className="eyebrow">AI 분리배출 도우미</p>
+          <h2>버릴 물건을 입력하면 AI가 배출 방법을 알려줍니다.</h2>
+          <p>
+            물건의 재질, 오염 여부, 위험성, 재사용 가능성을 함께 고려해 실천하기 쉬운 안내로 정리합니다.
+            지역별 기준은 다를 수 있으므로 최종 배출 전 지자체 안내도 함께 확인해 주세요.
+          </p>
+          <div className="chips" aria-label="예시 검색어">
+            {examples.map((example) => (
+              <button key={example} type="button" onClick={() => setItem(example)}>
+                {example}
+              </button>
+            ))}
           </div>
         </div>
-      </section>
 
-      <section className="section checker" id="checker">
-        <div className="section-inner checker-layout">
-          <div className="guide-panel">
-            <div className="section-heading">
-              <h2>AI 재활용 가이드</h2>
-              <p>물건 이름을 입력하면 실용적인 분리배출, 재활용, 재사용 방법을 확인할 수 있습니다.</p>
-            </div>
-
-            <form className="search-form" onSubmit={handleSubmit}>
+        <div className="ai-panel">
+          <form className="search-box" onSubmit={handleSubmit}>
+            <label htmlFor="waste-input">어떤 쓰레기를 버리나요?</label>
+            <div className="input-row">
               <input
-                type="text"
+                id="waste-input"
                 value={item}
                 onChange={(event) => setItem(event.target.value)}
-                placeholder="예: 페트병, 종이컵, 배달 용기"
-                aria-label="물건 이름"
-                maxLength={maxItemLength}
+                placeholder="예: 양념 묻은 치킨 박스, 깨진 거울, 스티로폼"
+                maxLength="60"
               />
-              <button className="button" type="submit" disabled={isLoading}>
-                {isLoading ? "분석 중" : "분석하기"}
+              <button type="submit" disabled={loading}>
+                {loading ? "분석 중" : "AI 분석"}
               </button>
-            </form>
-
-            <div className="example-list" aria-label="물건 예시">
-              {examples.map((example) => (
-                <button
-                  className="chip"
-                  type="button"
-                  key={example}
-                  onClick={() => useExample(example)}
-                >
-                  {example}
-                </button>
-              ))}
             </div>
-          </div>
+          </form>
 
-          <div className="result-panel" aria-live="polite">
-            <div className="result-title">
-              <h3>분석 결과</h3>
-              {status && <span className="status">{status}</span>}
-            </div>
-            <p className="notice">
-              지역별 분리배출 기준은 다를 수 있습니다. 최종 배출 전 거주 지역 안내를 확인해 주세요.
-            </p>
+          <div className="result" aria-live="polite">
+            {!loading && !error && !result && (
+              <div className="empty-state">
+                <strong>AI 분석 결과가 여기에 표시됩니다.</strong>
+                <p>쓰레기 이름을 구체적으로 입력할수록 더 정확한 배출 방법을 받을 수 있습니다.</p>
+              </div>
+            )}
+            {loading && (
+              <div className="loading-state">
+                <span></span>
+                <strong>AI가 배출 방법을 확인하고 있습니다.</strong>
+              </div>
+            )}
             {error && <p className="error">{error}</p>}
-            {!error && result && <p>{result}</p>}
-            {!error && !result && !status && (
-              <p className="empty">물건 이름을 입력하면 결과가 여기에 표시됩니다.</p>
+            {result && !error && (
+              <article className="answer-card">
+                <div className="answer-head">
+                  <span>{result.item}</span>
+                  <h3>{result.category}</h3>
+                </div>
+                <div className="answer-grid">
+                  <section>
+                    <strong>배출 방법</strong>
+                    <ol>
+                      {result.steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  </section>
+                  <section>
+                    <strong>주의사항</strong>
+                    <p>{result.caution}</p>
+                  </section>
+                  <section>
+                    <strong>재사용 아이디어</strong>
+                    <p>{result.reuse}</p>
+                  </section>
+                  <section>
+                    <strong>환경 포인트</strong>
+                    <p>{result.environment}</p>
+                  </section>
+                </div>
+              </article>
             )}
           </div>
         </div>
       </section>
 
-      <section className="section" id="tips">
-        <div className="section-inner">
-          <div className="section-heading">
-            <h2>버리기 전에 재사용을 먼저 생각하세요</h2>
-            <p>작은 선택이 재활용 전에 발생하는 쓰레기를 줄일 수 있습니다.</p>
-          </div>
-
-          <div className="tips-grid">
-            <article className="tip-card">
-              <div className="tip-icon">1</div>
-              <h3>비우고 말리기</h3>
-              <p>재활용품이 다른 물건을 오염시키지 않도록 내용물을 제거해 주세요.</p>
-            </article>
-            <article className="tip-card">
-              <div className="tip-icon">2</div>
-              <h3>부분 분리하기</h3>
-              <p>가능한 경우 뚜껑, 라벨, 다른 재질을 따로 분리해 주세요.</p>
-            </article>
-            <article className="tip-card">
-              <div className="tip-icon">3</div>
-              <h3>용기 재사용하기</h3>
-              <p>깨끗한 유리병과 튼튼한 플라스틱 용기는 다시 사용할 수 있습니다.</p>
-            </article>
-            <article className="tip-card">
-              <div className="tip-icon">4</div>
-              <h3>쓸 수 있는 물건 나누기</h3>
-              <p>상태가 좋은 물건은 기부하거나 중고로 나눌 수 있습니다.</p>
-            </article>
-          </div>
+      <section className="section checklist-section" id="checklist">
+        <div className="section-title">
+          <p className="eyebrow">배출 전 마지막 확인</p>
+          <h2>자연으로 새지 않게, 수거함에 넣기 전 확인하세요.</h2>
+        </div>
+        <div className="checklist">
+          {checklistItems.map((label) => (
+            <label key={label}>
+              <input
+                type="checkbox"
+                checked={checked.includes(label)}
+                onChange={() => toggleCheck(label)}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
+        <div className="progress" aria-label={`체크리스트 완료율 ${progress}%`}>
+          <div style={{ width: `${progress}%` }}></div>
         </div>
       </section>
 
-      <section className="section action" id="action">
-        <div className="section-inner action-layout">
-          <div>
-            <div className="section-heading">
-              <h2>30초 체크리스트</h2>
-              <p>물건을 버리기 전에 아래 항목을 확인해 주세요.</p>
-            </div>
-          </div>
-
-          <div className="checklist">
-            <label>
-              <input type="checkbox" />
-              <span>내용물을 비우고 헹궜나요?</span>
-            </label>
-            <label>
-              <input type="checkbox" />
-              <span>종이, 플라스틱, 유리, 금속을 분리했나요?</span>
-            </label>
-            <label>
-              <input type="checkbox" />
-              <span>라벨, 뚜껑, 음식물 찌꺼기를 제거했나요?</span>
-            </label>
-            <label>
-              <input type="checkbox" />
-              <span>재사용, 기부, 수리가 가능한가요?</span>
-            </label>
-          </div>
-        </div>
-      </section>
-
-      <footer className="footer">
-        <div className="footer-inner">
-          <strong>Recycle AI</strong>
-          <p>바르게 분리하고, 더 많이 재사용하고, 쓰레기를 줄여요.</p>
-        </div>
+      <footer>
+        <strong>Recycle AI</strong>
+        <span>올바른 배출은 가장 가까운 자연 보호입니다.</span>
       </footer>
     </main>
   );
